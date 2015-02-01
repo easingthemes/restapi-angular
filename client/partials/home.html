@@ -1,0 +1,19 @@
+<div ng-controller="ItemsCtrl">
+	<h2>Read <span>Delete</span></h2>
+	<ul>
+		<li ng-repeat="item in items" id="{{ item._id }}" ng-click="getItem(item)"><p>{{ item.title }}</p> <button class="delete" ng-click="deleteItem(item)">delete</button></li>
+   </ul>
+	<h2>Create</h2>
+	<input type="text" placeholder="Enter item Title" ng-model="itemTitle">
+	<textarea placeholder="Enter item Content" ng-model="itemContent"></textarea>
+	<button class="create" type="submit" ng-click="addItem()">create</button>
+</div>
+<div ng-controller="OneCtrl as one">
+	<h2>Update <small>Click on text and edit</small></h2>
+	<h4>Select item to update: Click on item Title</h4>
+	<article id="{{ one._id }}">
+		<input type="text" ng-model="oneTitle">
+		<textarea ng-model="oneContent">{{ one.content }}</textarea>
+		<button class="update" type="submit" ng-click="updateItem(one)">update</button>
+	</article>
+</div>	

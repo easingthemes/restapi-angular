@@ -1,3 +1,7 @@
+##Restapi on angular
+Step 1: Intro in MEAN stack with app on jQuery - https://github.com/easingthemes/restapi
+Step 2: Replacing jQuery with Angular, real MEAN stack - this repo.
+
 ## If you want to try it
 Start mongodb
 ```
@@ -5,331 +9,67 @@ mongod
 ```
 start project
 ```
-git clone https://github.com/easingthemes/restapi.git
-cd restapi
+git clone https://github.com/easingthemes/restapi-angular.git
+cd restapi-angular
 npm install
 grunt serve
 ```
 ## If you want to learn
 Follow this readme and build your app from scratch.
 
-If you use Grunt and Node modules for front-end, but you never tried server side javaScript, this tutorial is for you.
-
-App is based on Yeoman generator angular-fullstack, but simplified a lot, and without Angular :). This is great intro for diving deeper in Angular and MEAN stack. 
-
-Actually this project helped me alot to finally understand some aspects of back-end development, and to separate Angular from Node.
-## Tools list
-nodejs, mongodb, grunt
-
-## Scafold project directories and files
+## Angular
+1.Add files, for now keep jquery:
 ```
-server/
-	server.js
-	routes.js
-	api/
-
-client/
-	index.html
-	js/
-		app.js
-	lib/
-		jquery.js
+<script type="text/javascript" src="lib/angular.min.js"></script>
+<script type="text/javascript" src="lib/jquery-1.11.2.min.js"></script>
+```
+2.Name your app:
+```
+<body ng-app="Restapi">
 ```
 
-Include app.js and jquery.js in index.html. Write down some text on the page.
+3.Create some partials: header.html, footer.html and home.html
 ```
-client/
-  index.html
-```
-`<h1>Hello API</h1>`
+  <header  ng-include="'partials/header.html'" scope="" onload=""></header>
 
-## Install extensions
-####1. Create `project.json` file
+  <footer  ng-include="'partials/footer.html'" scope="" onload=""></footer>
+```
+4.Initialize main app.js
+```
+angular.module('Restapi', []);
+```
+:: You should see **header** and **footer** now.
+5.ROUTES
+```
+angular.module('Restapi', [ 
+  'ngRoute' 
+])
+/** * Configure the Routes */ 
+.config(['$routeProvider', function ($routeProvider) { 
+  $routeProvider 
+  // Home 
+  .when("/", {
+    templateUrl: "partials/home.html"
+  })
+}]);
+```
+6.Add `ngRoute` to index.html
+```
+<script type="text/javascript" src="lib/angular-route.min.js"></script>
+```
+7.Add ng-view for rendering home route
+```
+<section  ng-view=""></section>
+```
+8.You should see whole page as with jQuery.
 
-`npm init`
 
-####1. Create `Gruntfile.js` file
-
-Gruntfile.js
-
-####2. Install node modules
-
-`npm install express mongoose body-parser lodash --save`
-
-####3. Install Dev modules for Grunt tasks
-
-`npm install grunt-contrib-watch grunt-express-server grunt-open --save-dev` 
+You just created basic angular page with Partials and Routes
 
 
-## SERVER: express server configuration
+## CLIENT: use created CRUD functions from frontend
 
-####1. Configure server
-file: `server/server.js`
-Include modules and define basic variables
-```
-var express = require("express"),
-    server = express(),
-    hostname = 'localhost',
-    port = 3000;
-```
-
-Now use them:
-
-```
-server.use(express.static(__dirname + '/../app'));
-server.listen(port, hostname);
-console.log("Server listening: http://" + hostname + ":" + port);
-```
-
-####2. Create GRUNT tasks for express server
-
-```
-module.exports = function(grunt) {
-
-  grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-express-server');
-  grunt.loadNpmTasks('grunt-open');
-
-  grunt.initConfig({
-    watch: {
-      express: {
-        files:  [ '**/*.js' ],
-        tasks:  [ 'express:dev' ],
-        options: {
-          spawn: false
-        }
-      }
-    },
-    express: {
-      options: {
-        port: 3000
-      },
-      dev: {
-        options: {
-          script: 'server/server.js',
-          debug: true
-        }
-      }
-    },
-    open: {
-      dev: {
-        path: 'http://localhost:<%= express.options.port%>'
-      }
-    }
-
-  });
-
-  grunt.registerTask('serve', [ 'express:dev', 'open:dev', 'watch' ])
-
-};
-```
-
-####3. Test express server
-`grunt serve`
-
-Browser should open configured location and you should see `hello api` page.
-There should also be log in the terminal:
-`Server: Express listening: http://localhost:3000`
-
-## DATABASE: MongoDB configuration
-
-####1. Configure mongoose for MongoDB
-
-```
-server/
-  server.js
-```
-Stop server first `CTRL + C`
-Include new modules
-
-```
-var express = require("express"),
-	mongoose = require('mongoose'),
-	bodyParser = require('body-parser'),
-	...
-```
-We need `mongoose` for `mongodb` manipulation and `body-parser` for sending and receiving JSON data.
-
-So let's use them:
-
-```
-app.use(express.static(__dirname + '/../app'));
-app.use(bodyParser.json());
-...
-```
-Mongoose connect
-```
-mongoose.connect('mongodb://localhost/simple', function(err) {
-    if(err) {
-        console.log('connection error', err);
-    } else {
-        console.log('connection successful');
-    }
-});
-```
-####2. Start `mongod` process
-`mongod`
-On Windows just doubleclick `mongod.exe`
-####3. Test DB connection
-Start server again
-`grunt serve`
-There should be new log
-`Database: MongoDB connection successful`
-
-## API Routes
-####1. Create folder for your API
-```
-server/
-	api/
-		item/
-```
-####2. MODEL: Create DataBase Schema
-```
-item/
-  item.model.js
-```
-Schema types: http://mongoosejs.com/docs/schematypes.html
-```
-var mongoose = require('mongoose'),
-    Schema = mongoose.Schema;
-
-var ItemSchema = new Schema({
-  title: String,
-  date: Date
-});
-
-module.exports = mongoose.model('Item', ItemSchema);
-```
-####3. CONTROLLER: Create functions for DATABASE manipulation - CRUD: Create Read Update Delete
-```
-item/
-  item.controller.js
-```
-```
-// Import model
-var Item = require('./item.model');
-// READ: Get list of Items
-exports.index = function(req, res) {
-  Item.find(function (err, items) {
-    if(err) { return handleError(res, err); }
-    return res.status(200).json(items);
-  });
-};
-```
-####4. ROUTES: Define API router
-```
-item/
-  index.js
-```
-```
-// Import extensions
-var express = require('express'),
-  controller = require('./item.controller');
-// Define router
-var router = express.Router();
-// Define routes
-router.get('/', controller.index);
-
-// Export module
-module.exports = router;
-```
-####5. ROUTES: Create server routes
-```
-server/
-  routes.js
-```
-```
-module.exports = function(server) {
-  server.use('/api/items', require('./api/item'));
-  // All other routes should redirect to the index.html
-  server.route('/*')
-    .get(function(req, res) {
-      res.sendfile('app/index.html');
-  });
-};
-```
-####6. Test API routes
-`http://localhost:3000/api/items`
-You should se empty array, since DB is empty.
-`[]`
-
-## CRUD - Create Read Update Delete
- 
- 1. CONTROLLER: Create functions for DB manipulation - CRUD
- 2. ROUTER: Create API router
-
-#### CONTROLLER: Create functions for DB manipulation - CRUD
-
-We need `body-parser` mongoose module to pars JSON. Add it to `server.js`
-```
-server/
-  server.js
-```
-```
-var express = require("express"),
-  mongoose = require('mongoose'),
-  bodyParser = require('body-parser'),
-    server = express(),
-    hostname = 'localhost',
-    port = 3000; 
-
-server.use(express.static(__dirname + '/../client'));
-server.use(bodyParser.json());
-...
-```
-```
-item/
-  item.controller.js
-```
-```
-// Get list of Items
-exports.index = function(req, res) {
-  Item.find(function (err, items) {
-    if(err) { return handleError(res, err); }
-    return res.status(200).json(items);
-  });
-};
-// Get a single item
-exports.show = function(req, res) {
-  Item.findById(req.params.id, function (err, item) {
-    if(err) { return handleError(res, err); }
-    if(!item) { return res.sendStatus(404); }
-    return res.json(item);
-  });
-};
-//Creates a new item in the DB.
-exports.create = function(req, res) {
-  Item.create(req.body, function(err, item) {
-    if(err) { return handleError(res, err); }
-  return res.status(201).json(item);
-  });
-};
-// Updates an existing item in the DB.
-exports.update = function(req, res) {
-  if(req.body._id) { delete req.body._id; }
-  Item.findById(req.params.id, function (err, item) {
-    if (err) { return handleError(res, err); }
-    if(!item) { return res.send(404); }
-    var updated = _.merge(item, req.body);
-    updated.save(function (err) {
-      if (err) { return handleError(res, err); }
-      return res.json(200, item);
-    });
-  });
-};
-// Deletes a item from the DB.
-exports.delete = function(req, res) {
-  Item.findById(req.params.id, function (err, item) {
-    if(err) { return handleError(res, err); }
-    if(!item) { return res.sendStatus(404); }
-    item.remove(function(err) {
-      if(err) { return handleError(res, err); }
-      return res.sendStatus(204);
-    });
-  });
-};
-```
-#### ROUTER: Create API router
+#### ROUTER: Remember API router?
 ```
 router.get('/', controller.index);
 router.get('/:id', controller.show);
@@ -339,88 +79,158 @@ router.patch('/:id', controller.update);
 router.delete('/:id', controller.delete);
 ```
 
-## CLIENT: use created CRUD functions from frontend
-####1. For some methods we need `lodash` module
-`npm install lodash --save`
-Add it to 
 ```
-item/
-  item.controller.js
-```
-```
-var Item = require('./item.model');
-var _ = require('lodash');
-```
-####2. Create DOM
-```
-client/
-  index.html
-```
-```
-<h1>hello api</h1>
-<ul></ul>
-<input type="text" placeholder="Input Item Title">
-<button>Create item</button>
-<ol></ol>
-```
-####3. Create javaScript functions
-```
-client/
-  js/
-    app.js
-```
-```
-app = {
-  init: function(){
+## CRUD - jQuery to Angular
 
-    app.showPosts();
+###READ
 
-    $(document).on('click', 'button', function(event) {
-      event.preventDefault();
-      var itemTitle = $('input').val();
-      var jsonItem = JSON.stringify({title: itemTitle});
-      app.createPost(jsonItem);
+####jQuery: 
+* app.js
+```
+showPosts: function(){
+  //READ: get all items from API uri
+  $.get('/api/items', function(data) {
+    $.each(data, function(index, val) {
+      $('<li id="'+val._id+'"><p>'+val.title+'</p> <a href="">delete</a></li>').appendTo('ul');
     });
-    $(document).on('click', 'a', function(event) {
-      event.preventDefault();
-      app.deletePost($(this).parent().attr('id'));
+  });
+}
+```
+* index.html
+```
+<div>
+  <h2>Read <span>Delete</span></h2>
+  <ul></ul>
+</div>
+```
+
+Basicly with jQuery we used AJAX to get data and then we builded DOM and appened it to `ul` in index.html. We also used `$.each` to create all items.
+
+####Angular:
+
+In Angular we are going to use controller to comunicate with API
+
+5.CONTROLER: controller.js
+```
+angular.module('Restapi')
+/** * Controls the Pages */ 
+.controller('ItemsCtrl', function ($scope, $location, $http) {
+
+    $http.get('/api/items').
+      success(function(data, status, headers, config) {
+            $scope.items = data;
     });
-    $('ul').on('click', 'li', function(event) {
-      app.showPost($(this).attr('id'));
-    });
-    $(document).on('click', 'span', function(event) {
-      var newTitle = $(this).siblings('p').text();
-      var jsonItem = JSON.stringify({title: newTitle});
-      app.updatePost($(this).parent().data('id'), jsonItem);
-    });
-  },
-  showPosts: function(){
-    //READ: get all items from API uri
-    $.get('/api/items', function(data) {
-      $.each(data, function(index, val) {
-        $('<li id="'+val._id+'"><p>'+val.title+'</p> <a href="">delete</a></li>').appendTo('ul');
-      });
-    });
-  },
-  showPost: function(itemId){
-    //GET: get single item from API uri
-    $.get('/api/items/'+itemId, function(data) {
-      $('<li data-id="'+data._id+'"  contenteditable="true"><p>'+data.title+'</p> <span>edit</span></li>').appendTo('ol');
-    }); 
-  },
-  createPost: function(data){
-    //CREATE: create new item
+        
+});
+```
+6.Add controller.js file
+```
+<script src="js/controllers.js"></script>
+```
+
+Then we are going to build DOM directlly with `ng-repeat`
+
+7.READ data: home.html
+```
+<div ng-controller="PageCtrl">
+  <h2>Read <span>Delete</span></h2>
+  <ul>
+      <li ng-repeat="item in items" id="{{ item._id }}"><p>{{ item.title }}</p> <button class="delete">delete</button></li>
+   </ul>
+</div>
+```
+We replaced READ part from jQuery with Angular
+
+###DELETE
+####jQuery
+```
+  deletePost: function(itemId){
+    //DELETE: delete item
     $.ajax({
-      url: '/api/items',
-      type: 'POST',
-      contentType: 'application/json',
-      dataType: 'json',
-      data: data
-    })
-    .done(function(data) {
-      $('<li id="'+data._id+'"><p>'+data.title+'<p> <a href="">delete</a></li>').appendTo('ul');
+      url: '/api/items/'+itemId,
+      type: 'DELETE'
     });
   },
+```
+and event:
+```
+$(document).on('click', '.delete', function(event) {
+  event.preventDefault();
+  app.deletePost($(this).parent().attr('id'));
+});
+```
+####Angular:
+1.Use controller
+```
+.controller('ItemsCtrl', function ($scope, $location, $http) {
+
+    $http.get('/api/items').
+      success(function(data, status, headers, config) {
+            $scope.items = data;
+    })
+    $scope.deleteItem = function(item) {
+        $http.delete('/api/items/' + item._id);
+    };
+
+});
+```
+2.Add event
+```
+<button class="delete" ng-click="deleteItem(item)">delete</button>
+```
+
+We replaced DELETE part from jQuery with Angular
+
+###CREATE:
+####jQuery
+```
+createPost: function(data){
+  //CREATE: create new item
+  $.ajax({
+    url: '/api/items',
+    type: 'POST',
+    contentType: 'application/json',
+    dataType: 'json',
+    data: data
+  })
+  .done(function(data) {
+    $('<li id="'+data._id+'"><p>'+data.title+'</p> <button class="delete">delete</button></li>').appendTo('section > div > ul');
+    app.checkItems();
+  });
+},
+```
+Event:
+```
+$(document).on('click', '.create', function(event) {
+  event.preventDefault();
+  var itemTitle = $('input').val();
+  var itemContent = $('textarea').val();
+  var jsonItem = JSON.stringify({title: itemTitle, content: itemContent});
+  app.createPost(jsonItem);
+});
+```
+####Angular
+1.Use controller:
+```
+$scope.addItem = function() {
+    $http.post('/api/items', { 
+        title: $scope.itemTitle,
+        content: $scope.itemContent
+    });
+};  
+```
+2. Add event:
+```
+<h2>Create</h2>
+<input type="text" placeholder="Enter item Title" ng-model="itemTitle">
+<textarea placeholder="Enter item Content" ng-model="itemContent"></textarea>
+<button class="create" type="submit" ng-click="addItem()">create</button>
+```
+We replaced CREATE part from jQuery with Angular
+
+###UPDATE:
+####jQuery
+```
   updatePost: function(itemId, newData){
     //UPDATE: update item
     $.ajax({
@@ -431,27 +241,16 @@ app = {
       data: newData
     })
     .done(function(data) {
-      console.log(data._id+' - '+data.title);
       $('#'+data._id+' p').text(data.title);
     });
   },
-  deletePost: function(itemId){
-    //DELETE: delete item
-    $.ajax({
-      url: '/api/items/'+itemId,
-      type: 'DELETE'
-    });
-    var itemElement = document.getElementById(itemId);
-    itemElement.parentNode.removeChild(itemElement);
-  }
-}
-jQuery(document).ready(function($) {
-  app.init();
+```
+Event:
+```
+$(document).on('click', 'article .update', function(event) {
+  var newTitle = $(this).siblings('h3').text();
+  var newContent = $(this).siblings('div').text();
+  var jsonItem = JSON.stringify({title: newTitle, content: newContent});
+  app.updatePost($(this).parent().data('id'), jsonItem);
 });
 ```
-#### DONE: 
-*Starring*: nodejs with express, mongodb with mongoose
-
-*Also Starring**: Grunt
-
-*Thanks to*: body-parser, lodash, grunt-contrib-watch, grunt-express-server and grunt-open

@@ -1,28 +1,42 @@
+/** * 
+Main AngularJS Web Application 
+*/ 
+angular.module('Restapi', [ 
+	'ngRoute' 
+])
+/** * Configure the Routes */ 
+.config(['$routeProvider', function ($routeProvider) { 
+	$routeProvider 
+	// Home 
+	.when("/", {
+		templateUrl: "partials/home.html"
+	})
+}]);
 app = {
 	init: function(){
 
-		app.showPosts();
+		//app.showPosts();
 
-		$('.create').on('click', function(event) {
-			event.preventDefault();
-			var itemTitle = $('input').val();
-			var itemContent = $('textarea').val();
-	 		var jsonItem = JSON.stringify({title: itemTitle, content: itemContent});
-			app.createPost(jsonItem);
-		});
-		$('section').on('click', '.delete', function(event) {
-			event.preventDefault();
-			app.deletePost($(this).parent().attr('id'));
-		});
-		$('section').on('click', 'li > p', function(event) {
-			app.showPost($(this).parent().attr('id'));
-		});
-		$('article').on('click', '.update', function(event) {
-			var newTitle = $(this).siblings('h3').text();
-			var newContent = $(this).siblings('div').text();
-	 		var jsonItem = JSON.stringify({title: newTitle, content: newContent});
-			app.updatePost($(this).parent().data('id'), jsonItem);
-		});
+		// $(document).on('click', '.create', function(event) {
+		// 	event.preventDefault();
+		// 	var itemTitle = $('input').val();
+		// 	var itemContent = $('textarea').val();
+	 // 		var jsonItem = JSON.stringify({title: itemTitle, content: itemContent});
+		// 	app.createPost(jsonItem);
+		// });
+		// $(document).on('click', '.delete', function(event) {
+		// 	event.preventDefault();
+		// 	app.deletePost($(this).parent().attr('id'));
+		// });
+		// $(document).on('click', 'li > p', function(event) {
+		// 	app.showPost($(this).parent().attr('id'));
+		// });
+		// $(document).on('click', 'article .update', function(event) {
+		// 	var newTitle = $(this).siblings('h3').text();
+		// 	var newContent = $(this).siblings('div').text();
+	 // 		var jsonItem = JSON.stringify({title: newTitle, content: newContent});
+		// 	app.updatePost($(this).parent().data('id'), jsonItem);
+		// });
 	},
 	showPosts: function(){
 		//READ: get all items from API uri
